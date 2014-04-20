@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ScriptCs;
+using ScriptCs.Contracts;
 
 namespace ScriptCs.SampleModule
 {
@@ -12,16 +13,32 @@ namespace ScriptCs.SampleModule
     {
         public void Initialize(IModuleConfiguration config)
         {
-            Console.WriteLine("Sample module initialized");
-            config.FileSystem<TestFileSystem>();
+            config.LineProcessor<TestDirectiveLineProcessor>();
+            Console.WriteLine("SAMPLE module initialized");
         }
     }
 
-    public class TestFileSystem : FileSystem
+    public class TestDirectiveLineProcessor : DirectiveLineProcessor
     {
-        public TestFileSystem()
+        public TestDirectiveLineProcessor()
         {
-            Console.WriteLine("TestFileSystem created");
+            Console.Write("TestDirectiveLineProcessor .ctor");
         }
+
+        protected override string DirectiveName
+        {
+            get { return "test"; }
+        }
+
+        protected override bool ProcessLine(IFileParser parser, FileParserContext context, string line)
+        {
+            if (line.Trim(' ').StartsWith("#" + DirectiveName))
+            {
+                Console.WriteLine("TestDirectiveLineProcessor triggered : " + line);
+                return true;
+            }
+
+            return false;
+        } 
     }
 }
